@@ -12,12 +12,12 @@ Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
 
 ## Environment
 
-- **Next.js**: 16.0.1 (Turbopack, Cache Components)
+- **Next.js**: 16.0.2-canary.12 (Turbopack, Cache Components)
 - **React**: 19.2.0
 - **React DOM**: 19.2.0
 - **next-auth**: 4.24.13
 - **Node.js**: v22+
-- **Package Manager**: npm
+- **Package Manager**: pnpm
 
 ## Root Cause
 
@@ -60,13 +60,13 @@ This repository contains a **complete minimal reproduction** that demonstrates t
 ```bash
 git clone <this-repo>
 cd usesearchparams-suspense
-npm install
+pnpm install
 ```
 
 ### 2. Run Build
 
 ```bash
-npm run build -- --debug-prerender
+pnpm next build --debug-prerender
 ```
 
 ### 3. Observe Error
@@ -190,47 +190,18 @@ One of the following should happen:
    - Which Suspense boundary is missing or incorrect
    - How to fix it
 
-3. **Minimal outcome**: Document that `export const dynamic = 'force-dynamic'` is required when using:
-   - Cache Components + Proxy + useSearchParams
-
 ## Actual Behavior
 
 - Build fails with misleading error message
 - Error says to add Suspense boundary, but multiple boundaries already exist
 - No clear guidance on what's actually wrong
 
-## Workaround
-
-Adding `export const dynamic = 'force-dynamic'` to the page component bypasses the error:
-
-```typescript
-// app/auth/partner-signin/page.tsx
-import { Suspense } from "react";
-import PartnerSignIn from "./PartnerSignIn";
-
-export const dynamic = 'force-dynamic';  // ← Workaround
-
-export default function Page() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <PartnerSignIn />
-    </Suspense>
-  );
-}
-```
-
-However, this should not be necessary given:
-- The route already has multiple Suspense boundaries
-- `useSearchParams()` should automatically mark the route as dynamic
-- The proxy uses request-time data (`getToken()`)
-
 ## Questions for Next.js Team
 
 1. Why does the proxy's `getToken()` call interfere with dynamic route detection?
 2. Why are multiple Suspense boundaries not sufficient?
-3. Is the combination of Cache Components + Proxy + useSearchParams expected to require `export const dynamic = 'force-dynamic'`?
-4. Should the error message provide more specific guidance when a proxy is involved?
-5. Is the unusual root layout pattern (returning children directly) contributing to the issue?
+3. Should the error message provide more specific guidance when a proxy is involved?
+4. Is the unusual root layout pattern (returning children directly) contributing to the issue?
 
 ## Impact
 
@@ -259,10 +230,15 @@ This bug affects applications that use:
 ## System Information
 
 ```
-Next.js: 16.0.1 (Turbopack, Cache Components)
+Next.js: 16.0.2-canary.12 (Turbopack, Cache Components)
 React: 19.2.0
 React DOM: 19.2.0
 next-auth: 4.24.13
 Node.js: v22+
 OS: macOS (Darwin 24.6.0)
 ```
+
+## Tested Versions
+
+- ✅ Bug present in Next.js 16.0.1
+- ✅ Bug present in Next.js 16.0.2-canary.12 (latest canary as of 2024-11-09)

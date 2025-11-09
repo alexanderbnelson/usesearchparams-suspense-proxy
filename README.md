@@ -24,10 +24,10 @@ See [`BUG_REPORT.md`](./BUG_REPORT.md) for complete details.
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Run build with debug prerender
-npm run build -- --debug-prerender
+pnpm next build --debug-prerender
 ```
 
 **Expected Result:** Build fails with the Suspense boundary error.
@@ -39,7 +39,7 @@ npm run build -- --debug-prerender
 mv proxy.ts proxy.ts.bak
 
 # Build should succeed now
-npm run build -- --debug-prerender
+pnpm next build --debug-prerender
 
 # Restore proxy
 mv proxy.ts.bak proxy.ts
@@ -72,10 +72,15 @@ However, this should not be necessary given the multiple Suspense boundaries and
 
 ## 🛠️ Tech Stack
 
-- Next.js 16.0.1 (Turbopack, Cache Components)
+- Next.js 16.0.2-canary.12 (Turbopack, Cache Components)
 - React 19.2.0
 - next-auth 4.24.13
 - TypeScript 5.x
+
+## ✅ Tested Versions
+
+- Bug confirmed in Next.js 16.0.1
+- Bug confirmed in Next.js 16.0.2-canary.12 (latest canary)
 
 ## 📝 Notes
 

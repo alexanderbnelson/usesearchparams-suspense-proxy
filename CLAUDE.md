@@ -16,30 +16,31 @@ The bug causes a false positive "missing Suspense boundary" error during build d
 
 ## Technology Stack
 
-- **Next.js**: 16.0.1 (App Router with Turbopack)
+- **Next.js**: 16.0.2-canary.12 (App Router with Turbopack)
 - **React**: 19.2.0
 - **next-auth**: 4.24.13 (critical for reproduction)
 - **TypeScript**: 5.x
 - **Styling**: Tailwind CSS v4 (PostCSS)
 - **Linting**: ESLint 9 with Next.js config
+- **Package Manager**: pnpm
 
 ## Development Commands
 
 ```bash
 # Development server
-npm run dev
+pnpm dev
 
 # Production build
-npm run build
+pnpm build
 
 # Production build with debug output (important for bug reproduction)
-npm run build -- --debug-prerender
+pnpm next build --debug-prerender
 
 # Start production server
-npm start
+pnpm start
 
 # Run linter
-npm run lint
+pnpm lint
 ```
 
 ## Project Architecture
@@ -136,7 +137,7 @@ Add `export const dynamic = 'force-dynamic'` to the page component, but this sho
 
 **To trigger the error:**
 ```bash
-npm run build -- --debug-prerender
+pnpm next build --debug-prerender
 ```
 
 **Expected output:**
@@ -149,10 +150,15 @@ Error occurred prerendering page "/auth/partner-signin"
 ```bash
 # Temporarily rename proxy.ts
 mv proxy.ts proxy.ts.bak
-npm run build -- --debug-prerender
+pnpm next build --debug-prerender
 # Build should succeed
 mv proxy.ts.bak proxy.ts
 ```
+
+## Tested Versions
+
+- ✅ Bug confirmed in Next.js 16.0.1
+- ✅ Bug confirmed in Next.js 16.0.2-canary.12 (latest canary as of 2024-11-09)
 
 ## Important Notes
 
