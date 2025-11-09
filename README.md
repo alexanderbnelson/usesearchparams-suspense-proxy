@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js 16 Bug Reproduction: Cache Components + Proxy + useSearchParams
 
-## Getting Started
+This repository contains a **minimal reproduction** of a bug in Next.js 16.0.1 where the combination of Cache Components, Next.js Proxy with next-auth, and `useSearchParams()` incorrectly triggers a "missing Suspense boundary" error during build, despite multiple Suspense boundaries being properly implemented.
 
-First, run the development server:
+## 🐛 The Bug
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**Error Message:**
+```
+⨯ Render in Browser should be wrapped in a suspense boundary at page "/auth/partner-signin"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**What Triggers It:**
+- ✅ `cacheComponents: true` in next.config.ts
+- ✅ Next.js Proxy (`proxy.ts`) using `getToken()` from next-auth/jwt
+- ✅ Root layout that returns `children` directly (no html/body wrapper)
+- ✅ Client component using `useSearchParams()`
+- ✅ Multiple Suspense boundaries already present
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See [`BUG_REPORT.md`](./BUG_REPORT.md) for complete details.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Quick Start
 
-## Learn More
+### Reproduce the Bug
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Install dependencies
+npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run build with debug prerender
+npm run build -- --debug-prerender
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Expected Result:** Build fails with the Suspense boundary error.
 
-## Deploy on Vercel
+### Verify It's the Proxy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Temporarily disable proxy
+mv proxy.ts proxy.ts.bak
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Build should succeed now
+npm run build -- --debug-prerender
+
+# Restore proxy
+mv proxy.ts.bak proxy.ts
+```
+
+## 📁 Key Files
+
+- **`proxy.ts`** - Next.js Proxy with next-auth (triggers the bug)
+- **`app/auth/partner-signin/PartnerSignIn.tsx`** - Client component using `useSearchParams()`
+- **`app/auth/layout.tsx`** - Suspense boundary (1st level)
+- **`app/auth/partner-signin/page.tsx`** - Suspense boundary (2nd level)
+- **`next.config.ts`** - Cache Components enabled
+- **`.env`** - Required environment variables
+
+## 🔧 Workaround
+
+Add `export const dynamic = 'force-dynamic'` to the page component:
+
+```typescript
+// app/auth/partner-signin/page.tsx
+export const dynamic = 'force-dynamic';
+```
+
+However, this should not be necessary given the multiple Suspense boundaries and dynamic nature of the route.
+
+## 📚 Documentation
+
+- **[BUG_REPORT.md](./BUG_REPORT.md)** - Complete bug report with analysis
+- **[CLAUDE.md](./CLAUDE.md)** - Technical guidance for AI assistants
+
+## 🛠️ Tech Stack
+
+- Next.js 16.0.1 (Turbopack, Cache Components)
+- React 19.2.0
+- next-auth 4.24.13
+- TypeScript 5.x
+
+## 📝 Notes
+
+- This is a bug reproduction repository, not a production application
+- The bug has been successfully reproduced and verified
+- All components (proxy, Cache Components, next-auth) are required to trigger the bug
+- Removing any single piece causes the build to succeed
