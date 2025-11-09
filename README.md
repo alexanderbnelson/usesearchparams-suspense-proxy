@@ -54,13 +54,6 @@ mv proxy.ts.bak proxy.ts
 - **`next.config.ts`** - Cache Components enabled
 - **`.env`** - Required environment variables
 
-```typescript
-// app/auth/partner-signin/page.tsx
-export const dynamic = 'force-dynamic';
-```
-
-However, this should not be necessary given the multiple Suspense boundaries and dynamic nature of the route.
-
 ## 📚 Documentation
 
 - **[BUG_REPORT.md](./BUG_REPORT.md)** - Complete bug report with analysis
