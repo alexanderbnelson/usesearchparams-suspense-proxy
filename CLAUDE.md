@@ -96,13 +96,6 @@ Despite having Suspense boundaries at THREE levels:
 
 ...the build still fails with the "missing Suspense" error.
 
-### Workaround
-
-Add `export const dynamic = 'force-dynamic'` to the page component, but this should not be necessary given:
-- Multiple Suspense boundaries exist
-- `useSearchParams()` should auto-mark route as dynamic
-- Proxy uses request-time data
-
 ## Configuration Files
 
 ### proxy.ts (THE CRITICAL FILE)

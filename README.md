@@ -54,10 +54,6 @@ mv proxy.ts.bak proxy.ts
 - **`next.config.ts`** - Cache Components enabled
 - **`.env`** - Required environment variables
 
-## 🔧 Workaround
-
-Add `export const dynamic = 'force-dynamic'` to the page component:
-
 ```typescript
 // app/auth/partner-signin/page.tsx
 export const dynamic = 'force-dynamic';
