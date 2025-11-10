@@ -6,5 +6,5 @@ type LayoutProps = {
 
 export default async function RootLayout(props: LayoutProps) {
   const { children } = props;
-  return children;
+  return <html lang="en"><body>{children}</body></html>;
 }
